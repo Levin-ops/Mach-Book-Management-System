@@ -23,7 +23,17 @@ def authenticate_user(email,password):
     user = session.query(User).filter(User.email == email, User.password == password)
     return user
 
+def after_login():
+    while True:
+        print(" Thank you for choosing Mach's Book Management System \n How can we be of help?")
+        print("1. Search Books ")
+        print("2. Display Books")
+        print("3. Leave a Review")
+        print("4. Logout")
 
+        choice = input("Enter your Selection: ")
+
+        
 
 def main():
     while True:
@@ -42,6 +52,7 @@ def main():
             logged_in_user = authenticate_user(email,password)
             if logged_in_user:
                 print("Login Successfull.")
+                after_login()
             else:
                 print("Invalid email or password.")
         elif choice == "00":
