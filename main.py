@@ -25,7 +25,7 @@ def authenticate_user(email,password):
 
 def after_login():
     while True:
-        print(" Thank you for choosing Mach's Book Management System \n How can we be of help?")
+        print("Thank you for choosing Mach's Book Management System \nHow can we be of help?")
         print("1. Search Books ")
         print("2. Display Books")
         print("3. Leave a Review")
@@ -33,6 +33,11 @@ def after_login():
 
         choice = input("Enter your Selection: ")
 
+def display_books():
+    books = session.query(Book).all()
+    print("This is our Books Library")
+    for book in books:
+        print(f"Title: {book.book_title}\nAuthor: {book.book_author} \nGenre: {book.book_genre}")
         
 
 def main():
@@ -51,7 +56,7 @@ def main():
             password = input("Enter your password:")
             logged_in_user = authenticate_user(email,password)
             if logged_in_user:
-                print("Login Successfull.")
+                print("\n\n\nLogin Successfull.\n\n\n\n")
                 after_login()
             else:
                 print("Invalid email or password.")
