@@ -16,6 +16,13 @@ class User(Base):
     genre_preference = Column(String)
     created = Column(DateTime, default= datetime.utcnow)
 
+    def __repr__(self):
+        return(
+            f"User(id ={self.id})"
+            + f"first_name = {self.first_name}"
+            + f"last_name = {self.last_name}"
+            )
+
 
 class Author(Base):
 
@@ -27,6 +34,15 @@ class Author(Base):
     nationality = Column(String)
     genres_published = Column(String)
 
+    def __repr__(self):
+        return(
+            f"Author(id ={self.id})"
+            + f"author_first_name = {self.author_name}"
+            + f"contact_info = {self.contact_info}"
+            + f"nationality = {self.nationality}"
+            )
+
+
 class Book(Base):
 
     __tablename__ = 'books'
@@ -36,3 +52,15 @@ class Book(Base):
     book_genre = Column(String, nullable= False)
     book_author = Column(String, ForeignKey('authors.id'))
     book_status = Column(String)
+
+    def __repr__(self):
+        return(
+            f"Book(id ={self.id})"
+            + f"Book_Title = {self.book_title}"
+            + f"Book_Author = {self.book_author}"
+            + f"Book_Genre = {self.book_genre}"
+            )
+
+
+
+
