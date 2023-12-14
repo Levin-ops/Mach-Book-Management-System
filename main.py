@@ -11,7 +11,7 @@ def register_user():
     last_name = input("Enter Last name: ")
     email = input("Enter Email: ")
     password = input("Enter Password: ")
-    genre_preference = input("Which Genre do you like? ")
+    genre_preference = input("Which Genre do you prefer? ")
 
     user = User(first_name = first_name, last_name = last_name,email = email,
                 password =password ,genre_preference = genre_preference)
@@ -26,19 +26,51 @@ def authenticate_user(email,password):
 def after_login():
     while True:
         print("Thank you for choosing Mach's Book Management System \nHow can we be of help?")
-        print("1. Search Books ")
+        print("1. Search Books ", )
         print("2. Display Books")
-        print("3. Leave a Review")
-        print("4. Logout")
+        print("3. Donate Book")
+        print("4. Leave a Review")
+        print("5. Logout")
 
         choice = input("Enter your Selection: ")
 
+        if choice == "1":
+            search_books()
+        elif choice == "2":
+            display_books()
+        elif choice == "3":
+            donate_book()
+        elif choice == "4":
+            leave_a_review()
+        elif choice == "5":
+            print("Logging Out...")
+            break
+        else:
+            print("Invalid Selection. Please Try Again.")
+
+
+def donate_book():
+    book_title = input("Enter Book Title: ")
+    book_author = input("Enter Author Name: ")
+    book_genre = input("Enter Book Genre: ")
+    book_status = input("Enter Book Status (Old/New): ")
+    print("\nThank You For Your Donation.\n")
+    book = Book(book_title = book_title, book_author = book_author, book_genre = book_genre,
+                book_status = book_status)
+    session.add(book)
+    session.commit()
+
+def search_books():
+    pass
+
 def display_books():
     books = session.query(Book).all()
-    print("This is our Books Library")
+    print("This is our Books Library:\nBooks: \n")
     for book in books:
-        print(f"Title: {book.book_title}\nAuthor: {book.book_author} \nGenre: {book.book_genre}")
-        
+        print(f"Title: {book.book_title}\nAuthor: {book.book_author} \nGenre: {book.book_genre}\n\n")
+
+def leave_a_review():
+    pass 
 
 def main():
     while True:
