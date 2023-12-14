@@ -25,12 +25,6 @@ class User(Base):
             + f"last_name = {self.last_name}"
             )
 
-# author_book_association = Table(
-#     "author_genre_association",
-#     Base.metadata,
-#     Column("author_id", Integer,ForeignKey('authors.id')),
-#     Column('book_id', Integer, ForeignKey("book.id"))
-    # )
 
 
 class Author(Base):
@@ -63,6 +57,7 @@ class Book(Base):
     book_status = Column(String)
     book_author = Column(Integer, ForeignKey('authors.id'))
     author = relationship('Author', back_populates='books')
+    reviews = relationship("Review", back_populates="book")
 
     def __repr__(self):
         return(
@@ -72,17 +67,20 @@ class Book(Base):
             + f"Book_Genre = {self.book_genre}"
             )
 
-# class Genre(Base):
-#     __tablename__ = "genres"
+class Review(Base):
 
-#     id = Column(Integer, primary_key= True)
-#     genre_name = Column(String)
-#     authors = relationship("Author", secondary = author_genre_association, back_populates= "genres")
-    
-#     def __repr__(self):
-#         return f"Genre(id={self.id}) genre_name={self.genre_name}"
+    __tablename__ = 'reviews'
 
+    id = Column(Integer, primary_key=True)
+    review_text = Column(String)
+    book_id = Column(Integer, ForeignKey("books.id"))
 
+    book = relationship('Book', back_populates="reviews")
 
+    def __repr__(self):
+        return(
+            f"Review(id ={self.id})"
+            + f"Review = {self.review_text}"
+            )
 
 

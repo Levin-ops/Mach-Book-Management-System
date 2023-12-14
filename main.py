@@ -61,6 +61,7 @@ def donate_book():
     book_status = input("Enter Book Status (Old/New): ")
     
     author = session.query(Author).filter(Author.author_name == book_author_name).first()
+    genre = session.query(Author).filter(Author.genres_published == book_genre)
 
     if author is None:
         author = Author(author_name = book_author_name)
@@ -76,13 +77,26 @@ def donate_book():
     print("\nThank You For Your Donation.\n")
 
 def search_books():
-    pass
+    search_term = input("Enter Book Title or Author's name to search: ")
+    books = session.query(Book).filter(
+    (Book.book_title.like(f"%{search_term}%")) |
+    (Author.author_name.like(f"%{search_term}%"))).join(Author).all()
+
+    if books:
+        print("Search Results: ")
+        for book in books:
+            print(f"\nTitle: {book.book_title}\nAuthor:{book.author.author_name}\nGenre: {book.book_genre}\n")
+    else:
+        print("\nNo books found matching the search term.\n\n")
+
 
 def display_books():
     books = session.query(Book).all()
     print("This is our Books Library:\nBooks: \n")
+    
     for book in books:
         print(f"Title: {book.book_title}\nAuthor: {book.book_author} \nGenre: {book.book_genre}\n\n")
+
 
 def leave_a_review():
     pass 
