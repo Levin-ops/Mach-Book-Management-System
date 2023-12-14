@@ -1,11 +1,13 @@
 from datetime import datetime
-from sqlalchemy import Column, DateTime, Integer, String, ForeignKey, Table
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy import Column, DateTime, Integer, String, ForeignKey, Table, create_engine
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 
 Base = declarative_base()
 
-
+engine = create_engine('sqlite:///library.db')
+Session = sessionmaker(bind=engine)
+session = Session()
 
 class User(Base):
     __tablename__ = 'users'
@@ -17,6 +19,7 @@ class User(Base):
     password = Column(String, nullable= False)
     genre_preference = Column(String)
     created = Column(DateTime, default= datetime.utcnow)
+    borrowed_books = relationship('Book', back_populates= 'borrower')
 
     def __repr__(self):
         return(
@@ -67,6 +70,8 @@ class Book(Base):
     book_author = Column(Integer, ForeignKey('authors.id'))
     author = relationship('Author', back_populates='books')
     reviews = relationship("Review", back_populates="book")
+    borrower_id = Column(Integer, ForeignKey('users.id'))
+    borrower = relationship('User', back_populates='borrowed_books')
 
     def __repr__(self):
         return(
@@ -93,3 +98,5 @@ class Review(Base):
             )
 
 
+if __name__ == "__main__":
+    Base.metadata.create_all(engine)

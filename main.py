@@ -29,7 +29,7 @@ def login():
 
         if user:
             print("\n\nLogin Successful.\n\n")
-            after_login() 
+            after_login(user) 
             break
         else:
             print("Invalid email or password.")
@@ -45,32 +45,35 @@ def authenticate_user(email, password):
     user = session.query(User).filter(User.email == email, User.password == password).first()
     return user
 
-def after_login():
+def after_login(user):
     while True:
-        print("Thank you for choosing Mach's Book Management System \nHow can we be of help?")
+        print("Thank you for choosing Mach's Book Management System \nHow can we be of help?\n")
         print("1. Search Books ", )
         print("2. Display Books")
-        print("3. Donate Book")
-        print("4. Leave a Review")
-        print("5. Logout")
+        print("3. Borrow Book")
+        print("4. Donate Book")
+        print("5. Leave a Review")
+        print("98. Logout")
 
         choice = input("Enter your Selection: ")
 
         if choice == "1":
-            search_books()
+            search_books(user)
         elif choice == "2":
-            display_books()
+            display_books(user)
         elif choice == "3":
-            donate_book()
+            borrow_book(user)
         elif choice == "4":
-            leave_a_review()
+            donate_book()
         elif choice == "5":
+            leave_a_review(user)
+        elif choice == "98":
             print("Logging Out...")
             break
         else:
             print("Invalid Selection. Please Try Again.")
 
-def search_books():
+def search_books(user):
     search_term = input("Enter Book Title or Author's name to search: ")
     books = session.query(Book).filter(
     (Book.book_title.like(f"%{search_term}%")) |
@@ -80,16 +83,41 @@ def search_books():
         print("Search Results: ")
         for book in books:
             print(f"\nTitle: {book.book_title}\nAuthor:{book.author.author_name}\nGenre: {book.book_genre}\n")
+    
+    borrow_option = input("Do you want to borrow any book from the search results? (yes/no): ").lower()
+    
+    if borrow_option == "yes":
+        borrow_book(user)
     else:
         print("\nNo books found matching the search term.\n\n")
 
 
-def display_books():
+def display_books(user):
     books = session.query(Book).all()
     print("This is our Books Library:\nBooks: \n")
     
     for book in books:
         print(f"Title: {book.book_title}\nAuthor: {book.book_author} \nGenre: {book.book_genre}\n\n")
+
+    borrow_option = input("Do you want to borrow any book from the library? (yes/no): ").lower()
+    
+    if borrow_option == "yes":
+        borrow_book(user)
+
+
+def borrow_book(user):
+    book_title = input("Enter the title of the book you want to borrow: ")
+
+    book = session.query(Book).filter(Book.book_title.ilike(f"%{book_title}%"), Book.book_status == "Available").first()
+
+    if book:
+        book.book_status = "Borrowed"
+        book.borrower = user
+        
+        session.commit()
+        print(f"You have successfully borrowed '{book.book_title}'.")
+    else:
+        print("Book not available or not found.")
 
 
 def donate_book():
@@ -115,8 +143,8 @@ def donate_book():
     print("\nThank You For Your Donation.\n")
 
 
-def leave_a_review():
-    search_books()
+def leave_a_review(user):
+    search_books(user)
     book_title = input("Enter Title of Book to Review: ")
 
     selected_book = session.query(Book).filter(Book.book_title.ilike(f"%{book_title}%")).first()
