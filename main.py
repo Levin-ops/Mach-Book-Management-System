@@ -1,13 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Author, User, Book, Base
+from models import Author,  Book, Base, Review, User
 
 engine = create_engine('sqlite:///library.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
 
-Base.metadata.create_all(engine)
+
 
 
 
@@ -99,7 +99,23 @@ def display_books():
 
 
 def leave_a_review():
-    pass 
+    search_books()
+    book_title = input("Enter Title of Book to Review: ")
+
+    selected_book = session.query(Book).filter(Book.book_title.ilike(f"%{book_title}%")).first()
+
+    if selected_book:
+        review_text = input("Write your review for the book: ")
+
+        review = Review(review_text = review_text, book = selected_book)
+        session.add(review)
+        session.commit()
+        print("Your Review has been added. Thank you!")
+    
+    else:
+        print("Book not found. Please enter a valid Book Title.")
+
+
 
 def main():
     while True:
@@ -134,4 +150,5 @@ session.close()
 
 
 if __name__ == "__main__":
+    Base.metadata.create_all(engine)
     main()
