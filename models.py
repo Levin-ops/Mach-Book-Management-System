@@ -38,6 +38,15 @@ class Author(Base):
     genres_published = Column(String)
     books = relationship('Book', back_populates='author')
 
+    def add_genre(self, genre):
+        if not self.genres_published:
+            self.genres_published = f"[{genre}]"
+        else:
+            genres_list = eval(self.genres_published)
+            if genre not in genres_list:
+                genres_list.append(genre)
+                self.genres_published = str(genres_list)
+
     def __repr__(self):
         return(
             f"Author(id ={self.id})"
