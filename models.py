@@ -30,7 +30,9 @@ class User(Base):
 #     Base.metadata,
 #     Column("author_id", Integer,ForeignKey('authors.id')),
 #     Column('book_id', Integer, ForeignKey("book.id"))
-# )
+    # )
+
+
 class Author(Base):
 
     __tablename__ = 'authors'
@@ -40,6 +42,7 @@ class Author(Base):
     contact_info = Column(String)
     nationality = Column(String)
     genres_published = Column(String)
+    books = relationship('Book', back_populates='author')
 
     def __repr__(self):
         return(
@@ -47,6 +50,26 @@ class Author(Base):
             + f"author_name = {self.author_name}"
             + f"contact_info = {self.contact_info}"
             + f"nationality = {self.nationality}"
+            )
+    
+
+class Book(Base):
+
+    __tablename__ = 'books'
+
+    id = Column(Integer, primary_key= True)
+    book_title = Column(String, nullable= False)
+    book_genre = Column(String, nullable= False)
+    book_status = Column(String)
+    book_author = Column(Integer, ForeignKey('authors.id'))
+    author = relationship('Author', back_populates='books')
+
+    def __repr__(self):
+        return(
+            f"Book(id ={self.id})"
+            + f"Book_Title = {self.book_title}"
+            + f"Book_Author = {self.author.author_name if self.author else None}"
+            + f"Book_Genre = {self.book_genre}"
             )
 
 # class Genre(Base):
@@ -59,23 +82,6 @@ class Author(Base):
 #     def __repr__(self):
 #         return f"Genre(id={self.id}) genre_name={self.genre_name}"
 
-class Book(Base):
-
-    __tablename__ = 'books'
-
-    id = Column(Integer, primary_key= True)
-    book_title = Column(String, nullable= False)
-    book_genre = Column(String, nullable= False)
-    book_author = Column(String)
-    book_status = Column(String)
-
-    def __repr__(self):
-        return(
-            f"Book(id ={self.id})"
-            + f"Book_Title = {self.book_title}"
-            + f"Book_Author = {self.book_author}"
-            + f"Book_Genre = {self.book_genre}"
-            )
 
 
 

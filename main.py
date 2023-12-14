@@ -1,10 +1,15 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import *
+from models import Author, User, Book, Base
 
 engine = create_engine('sqlite:///library.db')
 Session = sessionmaker(bind=engine)
 session = Session()
+
+
+Base.metadata.create_all(engine)
+
+
 
 def register_user():
     first_name = input("Enter First Name: ")
@@ -51,14 +56,24 @@ def after_login():
 
 def donate_book():
     book_title = input("Enter Book Title: ")
-    book_author = input("Enter Author Name: ")
+    book_author_name = input("Enter Author Name: ")
     book_genre = input("Enter Book Genre: ")
     book_status = input("Enter Book Status (Old/New): ")
-    print("\nThank You For Your Donation.\n")
-    book = Book(book_title = book_title, book_author = book_author, book_genre = book_genre,
-                book_status = book_status)
+    
+    author = session.query(Author).filter(Author.author_name == book_author_name).first()
+
+    if author is None:
+        author = Author(author_name = book_author_name)
+        session.add(author)
+        session.commit()
+
+    book = Book(book_title = book_title, book_genre = book_genre,
+                    book_status = book_status, author = author)
+    
     session.add(book)
     session.commit()
+
+    print("\nThank You For Your Donation.\n")
 
 def search_books():
     pass
