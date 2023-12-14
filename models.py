@@ -38,7 +38,6 @@ class Author(Base):
     author_name = Column(String)
     contact_info = Column(String)
     nationality = Column(String)
-    genres_published = Column(String)
     books = relationship('Book', back_populates='author')
 
     def add_genre(self, genre):

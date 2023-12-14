@@ -134,10 +134,9 @@ def donate_book():
     book_title = input("Enter Book Title: ")
     book_author_name = input("Enter Author Name: ")
     book_genre = input("Enter Book Genre: ")
-    book_status = input("Enter Book Status (Old/New): ")
+    book_status = input("Enter Book Status (Available): ")
     
     author = session.query(Author).filter(Author.author_name == book_author_name).first()
-    genre = session.query(Author).filter(Author.genres_published == book_genre)
 
     if author is None:
         author = Author(author_name = book_author_name)
