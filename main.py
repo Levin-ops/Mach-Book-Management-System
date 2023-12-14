@@ -7,10 +7,6 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-
-
-
-
 def register_user():
     first_name = input("Enter First Name: ")
     last_name = input("Enter Last name: ")
@@ -24,8 +20,29 @@ def register_user():
     session.commit()
     print("Registration is Successfull.")
 
-def authenticate_user(email,password):
-    user = session.query(User).filter(User.email == email, User.password == password)
+def login():
+    while True:
+        email = input("Enter Email: ")
+        password = input("Enter Password: ")
+
+        user = authenticate_user(email, password)
+
+        if user:
+            print("\n\nLogin Successful.\n\n")
+            after_login() 
+            break
+        else:
+            print("Invalid email or password.")
+            register_option = input("Would you like to register? (yes/no): ").lower()
+            if register_option == "yes":
+                register_user()
+                print("Registration successful. Please log in.")
+            else:
+                print("Returning to the main menu.")
+            break
+
+def authenticate_user(email, password):
+    user = session.query(User).filter(User.email == email, User.password == password).first()
     return user
 
 def after_login():
@@ -53,6 +70,27 @@ def after_login():
         else:
             print("Invalid Selection. Please Try Again.")
 
+def search_books():
+    search_term = input("Enter Book Title or Author's name to search: ")
+    books = session.query(Book).filter(
+    (Book.book_title.like(f"%{search_term}%")) |
+    (Author.author_name.like(f"%{search_term}%"))).join(Author).all()
+
+    if books:
+        print("Search Results: ")
+        for book in books:
+            print(f"\nTitle: {book.book_title}\nAuthor:{book.author.author_name}\nGenre: {book.book_genre}\n")
+    else:
+        print("\nNo books found matching the search term.\n\n")
+
+
+def display_books():
+    books = session.query(Book).all()
+    print("This is our Books Library:\nBooks: \n")
+    
+    for book in books:
+        print(f"Title: {book.book_title}\nAuthor: {book.book_author} \nGenre: {book.book_genre}\n\n")
+
 
 def donate_book():
     book_title = input("Enter Book Title: ")
@@ -76,27 +114,6 @@ def donate_book():
 
     print("\nThank You For Your Donation.\n")
 
-def search_books():
-    search_term = input("Enter Book Title or Author's name to search: ")
-    books = session.query(Book).filter(
-    (Book.book_title.like(f"%{search_term}%")) |
-    (Author.author_name.like(f"%{search_term}%"))).join(Author).all()
-
-    if books:
-        print("Search Results: ")
-        for book in books:
-            print(f"\nTitle: {book.book_title}\nAuthor:{book.author.author_name}\nGenre: {book.book_genre}\n")
-    else:
-        print("\nNo books found matching the search term.\n\n")
-
-
-def display_books():
-    books = session.query(Book).all()
-    print("This is our Books Library:\nBooks: \n")
-    
-    for book in books:
-        print(f"Title: {book.book_title}\nAuthor: {book.book_author} \nGenre: {book.book_genre}\n\n")
-
 
 def leave_a_review():
     search_books()
@@ -116,7 +133,6 @@ def leave_a_review():
         print("Book not found. Please enter a valid Book Title.")
 
 
-
 def main():
     while True:
         print("Welcome to Mach's Book Management System")
@@ -129,14 +145,7 @@ def main():
         if choice == "1":
             register_user()
         elif choice == "2":
-            email = input("Enter Email: ")
-            password = input("Enter your password:")
-            logged_in_user = authenticate_user(email,password)
-            if logged_in_user:
-                print("\n\n\nLogin Successfull.\n\n\n\n")
-                after_login()
-            else:
-                print("Invalid email or password.")
+            login()
         elif choice == "00":
             print("Exiting Application...")
             break
@@ -145,8 +154,6 @@ def main():
 
 
 session.close()
-
-
 
 
 if __name__ == "__main__":
