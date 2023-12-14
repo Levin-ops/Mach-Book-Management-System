@@ -51,21 +51,24 @@ def after_login(user):
         print("1. Search Books ", )
         print("2. Display Books")
         print("3. Borrow Book")
-        print("4. Donate Book")
-        print("5. Leave a Review")
+        print("4. Return Book")
+        print("5. Donate Book")
+        print("6. Leave a Review")
         print("98. Logout")
 
         choice = input("Enter your Selection: ")
 
         if choice == "1":
-            search_books(user)
+            search_books()
         elif choice == "2":
             display_books(user)
         elif choice == "3":
             borrow_book(user)
         elif choice == "4":
-            donate_book()
+            return_book(user)
         elif choice == "5":
+            donate_book()
+        elif choice == "6":
             leave_a_review(user)
         elif choice == "98":
             print("Logging Out...")
@@ -73,7 +76,7 @@ def after_login(user):
         else:
             print("Invalid Selection. Please Try Again.")
 
-def search_books(user):
+def search_books():
     search_term = input("Enter Book Title or Author's name to search: ")
     books = session.query(Book).filter(
     (Book.book_title.like(f"%{search_term}%")) |
@@ -83,11 +86,6 @@ def search_books(user):
         print("Search Results: ")
         for book in books:
             print(f"\nTitle: {book.book_title}\nAuthor:{book.author.author_name}\nGenre: {book.book_genre}\n")
-    
-    borrow_option = input("Do you want to borrow any book from the search results? (yes/no): ").lower()
-    
-    if borrow_option == "yes":
-        borrow_book(user)
     else:
         print("\nNo books found matching the search term.\n\n")
 
@@ -117,8 +115,20 @@ def borrow_book(user):
         session.commit()
         print(f"You have successfully borrowed '{book.book_title}'.")
     else:
-        print("Book not available or not found.")
+        print("Book not available.")
 
+def return_book(user):
+    book_title = input('Which Book are you returning? ')
+    book = session.query(Book).filter(Book.book_title.ilike(f"%{book_title}%"), Book.borrower_id == user.id).first()
+
+    if book:
+        book.book_status = 'Available'
+        book.borrower = None
+
+        session.commit()
+        print(f"You have successfully returned {book.book_title}.")
+    else:
+        print(f"Book not found in your record. ")
 
 def donate_book():
     book_title = input("Enter Book Title: ")
@@ -143,8 +153,8 @@ def donate_book():
     print("\nThank You For Your Donation.\n")
 
 
-def leave_a_review(user):
-    search_books(user)
+def leave_a_review():
+    search_books()
     book_title = input("Enter Title of Book to Review: ")
 
     selected_book = session.query(Book).filter(Book.book_title.ilike(f"%{book_title}%")).first()
