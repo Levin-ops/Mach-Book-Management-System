@@ -1,12 +1,120 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Author,  Book, Base, Review, User
+from models import Admin, Author,  Book, Base, Review, User
 
 engine = create_engine('sqlite:///library.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
+############ ADMIN FEATURES ############
+def register_admin():
+    username = input("Enter Prefered Username: ")
+    password = input("Enter Password: ")
 
+    admin = Admin(username = username, password =password)
+    session.add(admin)
+    session.commit()
+    print("Admin Added.")
+
+
+
+def admin_login():
+    while True:
+        username = input("Enter Username: ")
+        password = input("Enter Password: ")
+
+        admin = authenticate_admin(username, password)
+
+        if admin:
+            print("\n\nLogin Successful.\n\n") 
+            after_admin_login(admin)
+            break
+        else:
+            print("Invalid username or password.")
+
+def authenticate_admin(username, password):
+    admin = session.query(Admin).filter(Admin.username == username, Admin.password == password).first()
+    return admin
+
+def after_admin_login(admin):
+    while True:
+        print("*"*10,"Mach's Book Management System\n")
+        print("*"*20,"Admin")
+        print("1. View Users.")
+        print("2. Delete Users.")
+        print("3. Add Book.")
+        print("4. Delete Book.")
+        print("0. Logout.")
+
+        choice = input("Enter your Selection: ")
+
+        if choice == "1":
+            view_users()
+        elif choice == "2":
+            user_id = input("Enter User ID To DELETE: ")
+            delete_user(user_id)
+        elif choice == "3":
+            add_book()
+        elif choice == "4":
+            book_title = input("Enter Book Title to delete: ")
+            delete_book(book_title)
+        elif choice == "0":
+            print("Logging Out...")
+            break
+        else:
+            print("Invalid Selection. Please Try Again.")
+
+def view_users():
+    users = session.query(User).all()
+    for user in users:
+        print(f"User ID: {user.id},\nName: {user.first_name} {user.last_name},\nEmail: {user.email}")
+
+def delete_user(user_id):
+    user = session.query(User).filter(User.id == user_id).first()
+    if user:
+        session.delete(user)
+        session.commit()
+        print(f"User with ID {user_id} has been deleted.")
+    else:
+        print("User not found.")
+
+    print("====================================================")
+
+
+def add_book():
+    book_title = input("Enter Book Title: ")
+    book_author_name = input("Enter Author Name: ")
+    book_genre = input("Enter Book Genre: ")
+    book_status = input("Enter Book Status (Available): ")
+    
+    author = session.query(Author).filter(Author.author_name == book_author_name).first()
+
+    if author is None:
+        author = Author(author_name = book_author_name)
+        session.add(author)
+        session.commit()
+
+    book = Book(book_title = book_title, book_genre = book_genre,
+                    book_status = book_status, author = author)
+    
+    session.add(book)
+    session.commit()
+
+    print("\nBook Added Successfully.\n")
+    print("=====================================================")
+
+def delete_book(book_title):
+    book = session.query(Book).filter(Book.book_title.ilike(f"%{book_title}%")).first()
+    if book:
+        session.delete(book)
+        session.commit()
+        print(f"Book '{book_title}' has been deleted.")
+    else:
+        print("Book not found.")
+    print("=====================================================")
+
+
+############ USER FEATURES ############
 def register_user():
     first_name = input("Enter First Name: ")
     last_name = input("Enter Last name: ")
@@ -19,6 +127,7 @@ def register_user():
     session.add(user)
     session.commit()
     print("Registration is Successfull.")
+    print("===============================================")
 
 def login():
     while True:
@@ -40,14 +149,15 @@ def login():
             else:
                 print("Returning to the main menu.")
             break
-
+    print("==============================================")
 def authenticate_user(email, password):
     user = session.query(User).filter(User.email == email, User.password == password).first()
     return user
 
 def after_login(user):
     while True:
-        print("Thank you for choosing Mach's Book Management System \nHow can we be of help?\n")
+        print("*"*10,"Mach's Book Management System\n")
+        print("*"*20,"User\n")
         print("1. Search Books ", )
         print("2. Display Books")
         print("3. Borrow Book")
@@ -57,6 +167,7 @@ def after_login(user):
         print("98. Logout")
 
         choice = input("Enter your Selection: ")
+
 
         if choice == "1":
             search_books()
@@ -75,6 +186,8 @@ def after_login(user):
             break
         else:
             print("Invalid Selection. Please Try Again.")
+    print("==================================================")
+
 
 def search_books():
     search_term = input("Enter Book Title or Author's name to search: ")
@@ -88,6 +201,8 @@ def search_books():
             print(f"\nTitle: {book.book_title}\nAuthor:{book.author.author_name}\nGenre: {book.book_genre}\n")
     else:
         print("\nNo books found matching the search term.\n\n")
+
+    print("==================================================")
 
 
 def display_books(user):
@@ -152,7 +267,7 @@ def donate_book():
     print("\nThank You For Your Donation.\n")
 
 
-def leave_a_review():
+def leave_a_review(user):
     search_books()
     book_title = input("Enter Title of Book to Review: ")
 
@@ -173,9 +288,11 @@ def leave_a_review():
 def main():
     while True:
         print("Welcome to Mach's Book Management System")
-        print("1. New Member? Register")
-        print("2. Login")
-        print("00: Exit")
+        print("1. New Member? Register.")
+        print("2. Login.")
+        print("3. Admin Register.")
+        print("4. Admin Log in.")
+        print("00: Exit.")
 
         choice = input("What is your selection? ")
 
@@ -183,6 +300,10 @@ def main():
             register_user()
         elif choice == "2":
             login()
+        elif choice =="3":
+            register_admin()
+        elif choice == "4":
+            admin_login()
         elif choice == "00":
             print("Exiting Application...")
             break

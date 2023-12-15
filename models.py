@@ -9,6 +9,18 @@ engine = create_engine('sqlite:///library.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
+class Admin(Base):
+
+    __tablename__ = 'admins'
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String, unique=True)
+    password = Column(String)
+
+    def __repr__(self):
+        return f"Admin(id={self.id}, username={self.username})"
+    
+
 class User(Base):
     __tablename__ = 'users'
 
